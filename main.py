@@ -1,34 +1,34 @@
-import os
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, render_template, request
 from instabot import Bot
+from werkzeug.utils import secure_filename  # Correct import
 
-# Initialize Flask app
 app = Flask(__name__)
 
-# Get Instagram credentials from environment variables
-INSTAGRAM_USERNAME = os.getenv("INSTAGRAM_USERNAME")
-INSTAGRAM_PASSWORD = os.getenv("INSTAGRAM_PASSWORD")
-
-# Initialize the bot with credentials
+# Initialize the bot
 bot = Bot()
-bot.login(username=INSTAGRAM_USERNAME, password=INSTAGRAM_PASSWORD)
 
 @app.route('/')
-def index():
+def home():
     return render_template('index.html')
 
 @app.route('/post', methods=['POST'])
-def post():
-    # Get the URL and caption from the form
-    media_url = request.form['media_url']
+def post_to_instagram():
+    username = request.form['username']
+    password = request.form['password']
     caption = request.form['caption']
+    hashtags = request.form['hashtags']
+    image_url = request.form['image_url']
 
-    # Repost the media with the caption
-    try:
-        bot.repost(media_url, caption=caption)
-        return render_template('success.html', message="Post successfully reposted!")
-    except Exception as e:
-        return render_template('error.html', message=str(e))
+    # Log in to Instagram
+    bot.login(username=username, password=password)
+
+    # Combine the caption with hashtags
+    full_caption = f"{caption} {hashtags}"
+
+    # Post the image with the caption
+    bot.upload_photo(image_url, caption=full_caption)
+
+    return render_template('success.html')
 
 if __name__ == '__main__':
-    app.run(debug=False)  # Set debug=False for production environment
+    app.run(debug=False)  # Disable debug mode for production
