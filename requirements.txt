@@ -1,4 +1,4 @@
-instabot==0.2.0
+git+https://github.com/instagrambot/instabot.git@master#egg=instabot
 flask==2.2.2
 werkzeug==2.2.2
 gunicorn==20.1.0
