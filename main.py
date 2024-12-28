@@ -1,47 +1,70 @@
-from flask import Flask, request
-from apscheduler.schedulers.background import BackgroundScheduler
+import os
+import requests
 from datetime import datetime
-import time
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
-scheduler = BackgroundScheduler()
 
-# Example function to repost media (you'll want to replace this with actual reposting logic)
-def repost_media(media_url, caption, poster_name):
-    # Logic to repost the media (e.g., via Instagram API)
-    print(f"Reposting: {media_url} with caption: {caption} (Original poster: {poster_name})")
+# Instagram API credentials - these should be securely stored in environment variables
+INSTAGRAM_ACCESS_TOKEN = os.getenv('INSTAGRAM_ACCESS_TOKEN')
+INSTAGRAM_USER_ID = os.getenv('INSTAGRAM_USER_ID')
 
-# Route to handle media posting
-@app.route('/post_media', methods=['POST'])
-def post_media():
-    media_url = request.form['media_url']
+# Post schedule dictionary to simulate scheduled posts (in a real application, this would be handled by a scheduler like Celery)
+scheduled_posts = {}
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/post_now', methods=['POST'])
+def post_now():
+    image_url = request.form['image_url']
     caption = request.form['caption']
-    schedule_time = request.form.get('schedule_time')
-    action = request.form['action']
+    post_to_instagram(image_url, caption)
+    return redirect(url_for('index'))
 
-    # For now, let's assume the poster's name is fetched from the media URL (you'll need real logic)
-    poster_name = "example_user"  # Replace with actual logic to get the original poster's name
+@app.route('/schedule_post', methods=['POST'])
+def schedule_post():
+    image_url = request.form['image_url']
+    caption = request.form['caption']
+    post_time = request.form['post_time']
 
-    # If no scheduling time, post immediately
-    if action == "now":
-        repost_media(media_url, caption, poster_name)
-        return f"Post has been made now! Credit: {poster_name}"
+    # Convert post_time string to datetime object
+    post_time_obj = datetime.strptime(post_time, '%Y-%m-%d %H:%M')
 
-    # If the post is scheduled, schedule the repost
-    if action == "schedule" and schedule_time:
-        schedule_datetime = datetime.fromisoformat(schedule_time)
-        delay = (schedule_datetime - datetime.now()).total_seconds()
+    # Store scheduled post
+    scheduled_posts[post_time_obj] = {'image_url': image_url, 'caption': caption}
 
-        if delay > 0:
-            scheduler.add_job(repost_media, 'date', run_date=schedule_datetime, args=[media_url, caption, poster_name])
-            return f"Post scheduled for {schedule_datetime}. Credit: {poster_name}"
+    return redirect(url_for('index'))
+
+def post_to_instagram(image_url, caption):
+    """Post image to Instagram using Graph API."""
+    endpoint = f'https://graph.facebook.com/v14.0/{INSTAGRAM_USER_ID}/media'
+    image_upload_payload = {
+        'image_url': image_url,
+        'caption': caption,
+        'access_token': INSTAGRAM_ACCESS_TOKEN
+    }
+
+    # Upload the image
+    response = requests.post(endpoint, data=image_upload_payload)
+    if response.status_code == 200:
+        creation_id = response.json().get('id')
+
+        # Publish the image
+        publish_endpoint = f'https://graph.facebook.com/v14.0/{INSTAGRAM_USER_ID}/media_publish'
+        publish_payload = {
+            'creation_id': creation_id,
+            'access_token': INSTAGRAM_ACCESS_TOKEN
+        }
+
+        publish_response = requests.post(publish_endpoint, data=publish_payload)
+        if publish_response.status_code == 200:
+            print("Post successful!")
         else:
-            return "Please choose a future time to schedule the post."
-
-    return "Invalid action."
-
-# Start the scheduler
-scheduler.start()
+            print(f"Error publishing post: {publish_response.text}")
+    else:
+        print(f"Error uploading image: {response.text}")
 
 if __name__ == "__main__":
     app.run(debug=True)

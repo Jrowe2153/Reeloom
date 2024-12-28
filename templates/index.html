@@ -3,40 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InstaQuick - Repost Media</title>
+    <title>InstaQuick - Automated Instagram Reposting Service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #1DA1F2;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        button {
+            background-color: #1DA1F2;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0d95e8;
+        }
+        .actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        .actions input {
+            width: 48%;
+        }
+        .actions button {
+            width: 48%;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #1DA1F2;
+            color: white;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to InstaQuick - Your Automated Instagram Reposting Service</h1>
+    <header>
+        <h1>Welcome to InstaQuick, Your Automated Instagram Reposting Service</h1>
+    </header>
 
-    <form action="/post_media" method="post">
-        <label for="media_url">Media URL:</label><br>
-        <input type="text" id="media_url" name="media_url" placeholder="Enter media URL" required><br><br>
+    <div class="container">
+        <div class="form-container">
+            <h2>Repost on Instagram</h2>
+            <form action="/post_media" method="post">
+                <!-- Media URL -->
+                <label for="media_url">Media URL</label>
+                <input type="text" id="media_url" name="media_url" placeholder="Enter the media URL" required>
 
-        <label for="caption">Caption:</label><br>
-        <input type="text" id="caption" name="caption" placeholder="Enter your caption" required><br><br>
+                <!-- Caption -->
+                <label for="caption">Caption</label>
+                <textarea id="caption" name="caption" placeholder="Enter the caption" rows="4" required></textarea>
 
-        <label for="action">Choose Action:</label><br>
-        <select id="action" name="action" required>
-            <option value="now">Post Now</option>
-            <option value="schedule">Schedule Post</option>
-        </select><br><br>
+                <!-- Post Action (Now or Schedule) -->
+                <label for="action">Action</label>
+                <select id="action" name="action" required>
+                    <option value="now">Post Now</option>
+                    <option value="schedule">Schedule Post</option>
+                </select>
 
-        <div id="schedule_time_div" style="display:none;">
-            <label for="schedule_time">Schedule Time (YYYY-MM-DD HH:MM:SS):</label><br>
-            <input type="text" id="schedule_time" name="schedule_time" placeholder="Enter scheduled time"><br><br>
+                <!-- Schedule Time -->
+                <div id="schedule_time_container" style="display: none;">
+                    <label for="schedule_time">Schedule Time (YYYY-MM-DD HH:MM:SS)</label>
+                    <input type="text" id="schedule_time" name="schedule_time" placeholder="Enter schedule time">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="actions">
+                    <button type="submit">Submit</button>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <button type="submit">Submit</button>
-    </form>
+    <footer>
+        <p>&copy; 2024 InstaQuick. All rights reserved.</p>
+    </footer>
 
     <script>
-        // Toggle the schedule time input based on the selected action
+        // Show/Hide Schedule Time input based on action selected
         document.getElementById('action').addEventListener('change', function() {
-            var scheduleTimeDiv = document.getElementById('schedule_time_div');
-            if (this.value === 'schedule') {
-                scheduleTimeDiv.style.display = 'block';
+            const action = this.value;
+            const scheduleTimeContainer = document.getElementById('schedule_time_container');
+            if (action === 'schedule') {
+                scheduleTimeContainer.style.display = 'block';
             } else {
-                scheduleTimeDiv.style.display = 'none';
+                scheduleTimeContainer.style.display = 'none';
             }
         });
     </script>
