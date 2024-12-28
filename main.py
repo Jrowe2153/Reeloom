@@ -1,37 +1,58 @@
-from flask import Flask, render_template, request, redirect, url_for
 import os
-from dotenv import load_dotenv
-from instabot import Bot
+from flask import Flask, render_template, request, redirect, url_for
+import requests
+from urllib.parse import quote as url_quote  # Updated import for URL encoding
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Initialize Flask app
 app = Flask(__name__)
 
-# Create a route to the main page with the form
-@app.route('/')
+# Instagram API credentials from environment variables
+INSTAGRAM_USERNAME = os.getenv('INSTAGRAM_USERNAME')
+INSTAGRAM_PASSWORD = os.getenv('INSTAGRAM_PASSWORD')
+
+# Define the Instagram post function (simplified for this example)
+def post_to_instagram(video_url, caption):
+    # You can integrate Instagram's API here for posting.
+    # This is just a placeholder example for the post-to-Instagram logic.
+    payload = {
+        'username': INSTAGRAM_USERNAME,
+        'password': INSTAGRAM_PASSWORD,
+        'video_url': video_url,
+        'caption': caption
+    }
+
+    # In a real scenario, you would make an API request to Instagram to post the video
+    # For now, we mock the response (success or failure)
+    response = {'status': 'success', 'message': 'Video posted successfully!'}
+    return response
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        # Get video URL and caption from the form
+        video_url = request.form['video_url']
+        caption = request.form['caption']
+
+        # URL encode the video URL (for safety)
+        encoded_url = url_quote(video_url)
+
+        # Post to Instagram (simplified)
+        response = post_to_instagram(encoded_url, caption)
+
+        # Redirect to the success page with the response message
+        if response['status'] == 'success':
+            return render_template('success.html', message=response['message'])
+        else:
+            return render_template('error.html', message="Failed to post video.")
+
     return render_template('index.html')
 
-# Create a route to handle the form submission and post to Instagram
-@app.route('/post', methods=['POST'])
-def post_to_instagram():
-    # Get data from the form
-    video_url = request.form['video_url']
-    caption = request.form['caption']
-    hashtags = request.form['hashtags']
+@app.route('/success')
+def success():
+    return render_template('success.html')
 
-    # Initialize Instagram bot using credentials from the .env file
-    bot = Bot()
-    bot.login(username=os.getenv('INSTAGRAM_USERNAME'), password=os.getenv('INSTAGRAM_PASSWORD'))
+@app.route('/error')
+def error():
+    return render_template('error.html')
 
-    # Post the video to Instagram
-    bot.upload_video(video_url, caption=f"{caption} {hashtags}")
-
-    return render_template('success.html', video_url=video_url, caption=caption, hashtags=hashtags)
-
-# Run the Flask app
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-
+    app.run(debug=True)
