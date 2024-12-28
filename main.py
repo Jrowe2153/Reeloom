@@ -1,27 +1,16 @@
-from flask import Flask, request, jsonify
-import logging
-from werkzeug.exceptions import HTTPException
+from flask import Flask, render_template
 
-# Initialize Flask app
 app = Flask(__name__)
 
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
-
-# Sample route to test if the app is running
 @app.route('/')
 def home():
-    return 'Hello, Flask is running!'
+    # Render the home page with a welcome message and form
+    return render_template('index.html')
 
-# Error handling for HTTP errors
-@app.errorhandler(HTTPException)
-def handle_exception(e):
-    response = e.get_response()
-    response.data = f'Error: {e.description}'.encode('utf-8')
-    response.content_type = "application/json"
-    return response
-
-# You can add more routes and logic below as needed
+@app.route('/repost', methods=['POST'])
+def repost():
+    # You can implement repost functionality here, or just a placeholder
+    return 'Reposting functionality goes here!'
 
 if __name__ == '__main__':
-    app.run(debug=True)  # You can set debug to False in production
+    app.run(debug=True)

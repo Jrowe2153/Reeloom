@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post Video</title>
+    <title>InstaQuick</title>
 </head>
 <body>
-    <h1>Post Video to Instagram</h1>
-    <form action="/post" method="post">
-        <label for="video_url">Video URL:</label><br>
-        <input type="text" id="video_url" name="video_url" required><br><br>
-        <label for="caption">Caption:</label><br>
-        <input type="text" id="caption" name="caption" required><br><br>
-        <label for="hashtags">Hashtags:</label><br>
-        <input type="text" id="hashtags" name="hashtags"><br><br>
-        <input type="submit" value="Post Now">
+    <h1>Welcome to InstaQuick!</h1>
+    <p>Your automated Instagram reposting service.</p>
+
+    <!-- Simple form to trigger repost functionality -->
+    <form method="POST" action="/repost">
+        <button type="submit">Repost on Instagram</button>
     </form>
 </body>
 </html>
