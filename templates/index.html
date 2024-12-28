@@ -3,15 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InstaQuick</title>
+    <title>InstaQuick - Repost Media</title>
 </head>
 <body>
-    <h1>Welcome to InstaQuick!</h1>
-    <p>Your automated Instagram reposting service.</p>
+    <h1>Welcome to InstaQuick - Your Automated Instagram Reposting Service</h1>
 
-    <!-- Simple form to trigger repost functionality -->
-    <form method="POST" action="/repost">
-        <button type="submit">Repost on Instagram</button>
+    <form action="/post_media" method="post">
+        <label for="media_url">Media URL:</label><br>
+        <input type="text" id="media_url" name="media_url" placeholder="Enter media URL" required><br><br>
+
+        <label for="caption">Caption:</label><br>
+        <input type="text" id="caption" name="caption" placeholder="Enter your caption" required><br><br>
+
+        <label for="action">Choose Action:</label><br>
+        <select id="action" name="action" required>
+            <option value="now">Post Now</option>
+            <option value="schedule">Schedule Post</option>
+        </select><br><br>
+
+        <div id="schedule_time_div" style="display:none;">
+            <label for="schedule_time">Schedule Time (YYYY-MM-DD HH:MM:SS):</label><br>
+            <input type="text" id="schedule_time" name="schedule_time" placeholder="Enter scheduled time"><br><br>
+        </div>
+
+        <button type="submit">Submit</button>
     </form>
+
+    <script>
+        // Toggle the schedule time input based on the selected action
+        document.getElementById('action').addEventListener('change', function() {
+            var scheduleTimeDiv = document.getElementById('schedule_time_div');
+            if (this.value === 'schedule') {
+                scheduleTimeDiv.style.display = 'block';
+            } else {
+                scheduleTimeDiv.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
