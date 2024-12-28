@@ -1,4 +1,4 @@
 Flask==2.0.1
 gunicorn==20.1.0
-git+https://github.com/instagrambot/instabot.git
+git+https://github.com/instagrambot/instabot.git@d68b55015322898c3842c92dcc5989581043252e  # Use a stable commit hash
 requests==2.25.1
