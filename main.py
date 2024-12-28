@@ -1,34 +1,27 @@
-from flask import Flask, render_template, request
-from instabot import Bot
-from werkzeug.utils import secure_filename  # Correct import
+from flask import Flask, request, jsonify
+import logging
+from werkzeug.exceptions import HTTPException
 
+# Initialize Flask app
 app = Flask(__name__)
 
-# Initialize the bot
-bot = Bot()
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
 
+# Sample route to test if the app is running
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return 'Hello, Flask is running!'
 
-@app.route('/post', methods=['POST'])
-def post_to_instagram():
-    username = request.form['username']
-    password = request.form['password']
-    caption = request.form['caption']
-    hashtags = request.form['hashtags']
-    image_url = request.form['image_url']
+# Error handling for HTTP errors
+@app.errorhandler(HTTPException)
+def handle_exception(e):
+    response = e.get_response()
+    response.data = f'Error: {e.description}'.encode('utf-8')
+    response.content_type = "application/json"
+    return response
 
-    # Log in to Instagram
-    bot.login(username=username, password=password)
-
-    # Combine the caption with hashtags
-    full_caption = f"{caption} {hashtags}"
-
-    # Post the image with the caption
-    bot.upload_photo(image_url, caption=full_caption)
-
-    return render_template('success.html')
+# You can add more routes and logic below as needed
 
 if __name__ == '__main__':
-    app.run(debug=False)  # Disable debug mode for production
+    app.run(debug=True)  # You can set debug to False in production
