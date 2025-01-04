@@ -1,33 +1,37 @@
 from flask import Flask, request, jsonify
+import hashlib
+import json
 
 app = Flask(__name__)
 
-# Set your verify token here (make sure this matches the one you created on Facebook)
-VERIFY_TOKEN = 'your_secure_verify_token_here'
+VERIFY_TOKEN = 'reeloom_secure_verify_token_8f5b48c4e2e0ed938f2f0b987b92c10b'
 
-# Webhook verification endpoint
-@app.route('/webhook', methods=['GET', 'POST'])
+@app.route('/')
+def home():
+    return "Welcome to Reeloom's API!"
+
+# Webhook verification
+@app.route('/webhook', methods=['GET'])
+def webhook_verification():
+    # Facebook requires that we verify the token sent in the request
+    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.verify_token") == VERIFY_TOKEN:
+        # Respond with the challenge sent by Facebook
+        return request.args.get("hub.challenge"), 200
+    else:
+        # Return an error if tokens don't match
+        return "Verification failed", 403
+
+# Endpoint for receiving events
+@app.route('/webhook', methods=['POST'])
 def webhook():
-    if request.method == 'GET':
-        # Retrieve the 'hub.verify_token' and 'hub.challenge' from the request
-        verify_token = request.args.get('hub.verify_token')
-        challenge = request.args.get('hub.challenge')
+    # Get the incoming data
+    data = json.loads(request.data)
 
-        # Check if the token matches the one you set up in your app
-        if verify_token == VERIFY_TOKEN:
-            return str(challenge)  # Respond with the challenge to verify the webhook
-        else:
-            return 'Invalid verify token', 403  # Respond with an error if the token is invalid
+    # You can process the data here (e.g., log, analyze, etc.)
+    print("Received data:", data)
 
-    if request.method == 'POST':
-        # Handle incoming POST requests from Facebook (event notifications)
-        data = request.get_json()
-
-        # Process the data (e.g., for Instagram Insights, posts, etc.)
-        print('Received data: ', data)  # You can log or process this data further as needed
-        return 'EVENT RECEIVED', 200
-
+    # Return a success response
+    return jsonify({"status": "success"}), 200
 
 if __name__ == '__main__':
-    # Run your Flask app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True)
